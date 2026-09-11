@@ -4,7 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import swaggerUi from "swagger-ui-express";
-import { swaggerSpec } from "./swagger/swagger";
+import { swaggerSpec, swaggerUiOptions, swaggerUiCdnHost } from "./swagger/swagger";
 import { errorHandler } from "./middleware/errorHandler";
 
 import authRoutes from "./modules/auth/auth.routes";
@@ -17,7 +17,17 @@ import consultationRoutes from "./modules/consultations/consultations.routes";
 
 const app = express();
 
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", swaggerUiCdnHost],
+        "img-src": ["'self'", "data:", swaggerUiCdnHost],
+      },
+    },
+  })
+);
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN || "http://localhost:3000",
@@ -29,7 +39,7 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/subscribers", subscriberRoutes);

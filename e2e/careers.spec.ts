@@ -5,7 +5,7 @@ test.describe("Career applications API", () => {
   test("public multipart create, then protected update/delete round-trip", async ({ request }) => {
     const email = `e2e-api-career.${Date.now()}@example.com`;
 
-    const createRes = await request.post("/careers", {
+    const createRes = await request.post("api/careers", {
       multipart: {
         firstName: "API",
         lastName: "Tester",
@@ -28,20 +28,20 @@ test.describe("Career applications API", () => {
 
     await login(request);
 
-    const getRes = await request.get(`/careers/${created.id}`);
+    const getRes = await request.get(`api/careers/${created.id}`);
     expect(getRes.ok()).toBeTruthy();
 
-    const updateRes = await request.patch(`/careers/${created.id}`, { data: { status: "REVIEWED" } });
+    const updateRes = await request.patch(`api/careers/${created.id}`, { data: { status: "REVIEWED" } });
     expect(updateRes.ok()).toBeTruthy();
     expect((await updateRes.json()).status).toBe("REVIEWED");
 
-    const deleteRes = await request.delete(`/careers/${created.id}`);
+    const deleteRes = await request.delete(`api/careers/${created.id}`);
     expect(deleteRes.ok()).toBeTruthy();
-    expect((await request.get(`/careers/${created.id}`)).status()).toBe(404);
+    expect((await request.get(`api/careers/${created.id}`)).status()).toBe(404);
   });
 
   test("rejects a create request missing the required files", async ({ request }) => {
-    const res = await request.post("/careers", {
+    const res = await request.post("api/careers", {
       multipart: {
         firstName: "Missing",
         lastName: "Files",
