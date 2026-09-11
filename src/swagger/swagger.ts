@@ -36,9 +36,11 @@ const options: swaggerJSDoc.Options = {
       },
     },
   },
+  // glob (used internally by swagger-jsdoc) only matches forward-slash
+  // patterns, but path.join produces backslashes on Windows — normalize.
   apis: [
-    path.join(__dirname, "../modules/**/*.routes.ts"),
-    path.join(__dirname, "../modules/**/*.routes.js"),
+    path.join(__dirname, "../modules/**/*.routes.ts").split(path.sep).join("/"),
+    path.join(__dirname, "../modules/**/*.routes.js").split(path.sep).join("/"),
   ],
 };
 

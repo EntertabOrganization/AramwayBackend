@@ -67,12 +67,28 @@ consultation bookings.
 
 ## Testing
 
-Tests mock the Prisma client (via `jest-mock-extended`), so they run without
-any database connection:
+Two separate test suites:
 
-```bash
-npm test
-```
+- **Unit tests** (`tests/`, Jest) mock the Prisma client (via
+  `jest-mock-extended`), so they run without any database connection:
+
+  ```bash
+  npm test
+  ```
+
+- **API end-to-end tests** (`e2e/`, Playwright) run against the real Express
+  app and a real, live `DATABASE_URL` — no mocking. `playwright.config.ts`
+  starts the dev server for you and seeds nothing itself, so run migrations
+  and `npm run seed` first:
+
+  ```bash
+  npx playwright install   # first time only (no browser needed, API-only tests)
+  npm run test:e2e
+  ```
+
+  This is also what AramwayDashboard's own Playwright e2e suite depends on
+  being up (`../AramwayDashboard`, `npm run dev` here first) since the
+  dashboard now proxies every `app/api/**` route to this backend.
 
 ## Building for production
 
