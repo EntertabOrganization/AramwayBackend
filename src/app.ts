@@ -53,6 +53,14 @@ app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });
 });
 
+app.get("/", (_req: Request, res: Response) => {
+  res.status(200).json({
+    name: "Aramway Admin Backend API",
+    docs: "/api-docs",
+    health: "/health",
+  });
+});
+
 // 404 handler
 app.use((req: Request, res: Response, _next: NextFunction) => {
   res.status(404).json({ error: `Route not found: ${req.method} ${req.originalUrl}` });
