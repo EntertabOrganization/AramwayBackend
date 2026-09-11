@@ -28,9 +28,14 @@ app.use(
     },
   })
 );
+// Allow any origin. Note: with credentials: true, the CORS spec forbids a
+// literal Access-Control-Allow-Origin: "*" on credentialed requests — browsers
+// reject it outright. `origin: true` has the `cors` package reflect back
+// whatever Origin the request sent instead, which satisfies "allow any
+// origin" while staying valid for cookie-based auth.
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || "http://localhost:3000",
+    origin: true,
     credentials: true,
   })
 );
