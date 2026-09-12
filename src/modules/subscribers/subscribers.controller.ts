@@ -3,6 +3,8 @@ import { SubscriberStatus } from "@prisma/client";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/ApiError";
 import { getPagination, buildPaginatedResult } from "../../utils/pagination";
+import { sendMail } from "../../lib/mailer";
+import { subscriptionConfirmationEmail } from "../../emails/subscriptionConfirmation";
 import * as subscribersService from "./subscribers.service";
 
 const VALID_STATUSES: SubscriberStatus[] = ["ACTIVE", "UNSUBSCRIBED"];
@@ -21,6 +23,9 @@ export const createSubscriber = asyncHandler(
         name,
       });
       res.status(201).json(subscriber);
+
+      const { subject, html } = subscriptionConfirmationEmail({ name });
+      void sendMail({ to: subscriber.email, subject, html });
     } catch (err: any) {
       if (err?.code === "P2002") {
         throw new ApiError(409, "This email is already subscribed");

@@ -40,6 +40,15 @@ export const getSubscriberById = (id: string) => {
   return prisma.subscriber.findUnique({ where: { id } });
 };
 
+/** Emails of all active (non-unsubscribed) subscribers — used for blog-published notifications. */
+export const listActiveSubscriberEmails = async (): Promise<string[]> => {
+  const subscribers = await prisma.subscriber.findMany({
+    where: { status: "ACTIVE" },
+    select: { email: true },
+  });
+  return subscribers.map((s) => s.email);
+};
+
 export const updateSubscriber = (id: string, data: UpdateSubscriberInput) => {
   const updateData: Prisma.SubscriberUpdateInput = { ...data };
   if (data.status === "UNSUBSCRIBED") {

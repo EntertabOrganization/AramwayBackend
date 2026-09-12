@@ -14,6 +14,7 @@ import blogRoutes from "./modules/blogs/blogs.routes";
 import careerRoutes from "./modules/careers/careers.routes";
 import contactRoutes from "./modules/contact/contact.routes";
 import consultationRoutes from "./modules/consultations/consultations.routes";
+import availabilityRoutes from "./modules/availability/availability.routes";
 
 const app = express();
 
@@ -53,6 +54,7 @@ app.use("/api/blogs", blogRoutes);
 app.use("/api/careers", careerRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/consultations", consultationRoutes);
+app.use("/api/availability", availabilityRoutes);
 
 app.get("/health", (_req: Request, res: Response) => {
   res.status(200).json({ status: "ok" });

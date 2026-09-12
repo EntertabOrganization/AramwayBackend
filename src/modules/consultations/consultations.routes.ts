@@ -40,6 +40,28 @@ router.post("/", controller.createConsultation);
 
 /**
  * @openapi
+ * /consultations/booked:
+ *   get:
+ *     tags: [Consultations]
+ *     summary: List time slots already booked on a given date (public)
+ *     parameters:
+ *       - in: query
+ *         name: date
+ *         required: true
+ *         schema: { type: string, format: date }
+ *     responses:
+ *       200:
+ *         description: Array of booked time strings
+ *       400:
+ *         description: Missing or invalid date
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
+router.get("/booked", controller.getBookedTimes);
+
+/**
+ * @openapi
  * /consultations:
  *   get:
  *     tags: [Consultations]

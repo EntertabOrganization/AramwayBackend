@@ -3,6 +3,11 @@ import { ConsultationStatus } from "@prisma/client";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/ApiError";
 import { getPagination, buildPaginatedResult } from "../../utils/pagination";
+import { sendMail } from "../../lib/mailer";
+import { consultationConfirmationEmail } from "../../emails/consultationConfirmation";
+import { consultationStaffNotificationEmail } from "../../emails/consultationStaffNotification";
+import { createMeetLink } from "../../lib/googleCalendar";
+import * as availabilityService from "../availability/availability.service";
 import * as service from "./consultations.service";
 
 const VALID_STATUSES: ConsultationStatus[] = [
@@ -11,6 +16,19 @@ const VALID_STATUSES: ConsultationStatus[] = [
   "CANCELLED",
   "COMPLETED",
 ];
+
+/** "09:00 AM" + a UTC midnight date -> the actual UTC start time of the slot. */
+function combineDateAndTimeLabel(date: Date, timeLabel: string): Date {
+  const match = timeLabel.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
+  if (!match) return date;
+
+  let hours = parseInt(match[1], 10) % 12;
+  if (match[3].toUpperCase() === "PM") hours += 12;
+
+  const combined = new Date(date);
+  combined.setUTCHours(hours, parseInt(match[2], 10), 0, 0);
+  return combined;
+}
 
 export const createConsultation = asyncHandler(
   async (req: Request, res: Response) => {
@@ -38,6 +56,23 @@ export const createConsultation = asyncHandler(
       throw new ApiError(400, "date must be a valid date");
     }
 
+    const dayOfWeek = parsedDate.getUTCDay();
+    const rule = await availabilityService.getRuleByDayOfWeek(dayOfWeek);
+    if (!rule || !rule.timeSlots.includes(time)) {
+      throw new ApiError(409, "That day/time is not available for consultations");
+    }
+
+    const bookedTimes = await service.listBookedTimesForDate(parsedDate);
+    if (bookedTimes.includes(time)) {
+      throw new ApiError(409, "That time slot has just been booked — please pick another");
+    }
+
+    const meetLink = await createMeetLink({
+      summary: `Aramway consultation with ${name}`,
+      description: svc ? `Service: ${svc}` : undefined,
+      startTime: combineDateAndTimeLabel(parsedDate, time),
+    });
+
     const consultation = await service.createConsultation({
       name,
       company,
@@ -48,11 +83,53 @@ export const createConsultation = asyncHandler(
       notes,
       date: parsedDate,
       time,
+      meetLink: meetLink ?? undefined,
     });
 
     res.status(201).json(consultation);
+
+    const customerEmail = consultationConfirmationEmail({
+      name: consultation.name,
+      date: consultation.date,
+      time: consultation.time,
+      meetLink: consultation.meetLink,
+      service: consultation.service,
+    });
+    void sendMail({ to: consultation.email, subject: customerEmail.subject, html: customerEmail.html });
+
+    const notifyEmail = process.env.CONSULTATION_NOTIFY_EMAIL;
+    if (notifyEmail) {
+      const staffEmail = consultationStaffNotificationEmail({
+        name: consultation.name,
+        company: consultation.company,
+        email: consultation.email,
+        phone: consultation.phone,
+        country: consultation.country,
+        service: consultation.service,
+        notes: consultation.notes,
+        date: consultation.date,
+        time: consultation.time,
+        meetLink: consultation.meetLink,
+      });
+      void sendMail({ to: notifyEmail, subject: staffEmail.subject, html: staffEmail.html });
+    }
   }
 );
+
+/** Public — the Aramway booking calendar checks this before letting a user pick a time. */
+export const getBookedTimes = asyncHandler(async (req: Request, res: Response) => {
+  const dateQuery = req.query.date as string | undefined;
+  if (!dateQuery) {
+    throw new ApiError(400, "date query parameter is required");
+  }
+  const parsedDate = new Date(dateQuery);
+  if (isNaN(parsedDate.getTime())) {
+    throw new ApiError(400, "date must be a valid date");
+  }
+
+  const bookedTimes = await service.listBookedTimesForDate(parsedDate);
+  res.status(200).json({ data: bookedTimes });
+});
 
 export const listConsultations = asyncHandler(
   async (req: Request, res: Response) => {

@@ -4,10 +4,43 @@ import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/ApiError";
 import { getPagination, buildPaginatedResult } from "../../utils/pagination";
 import { sanitizeBlogContent } from "../../utils/sanitizeHtml";
+import { sendMail } from "../../lib/mailer";
+import { newBlogNotificationEmail } from "../../emails/newBlogNotification";
+import * as subscribersService from "../subscribers/subscribers.service";
 import * as service from "./blogs.service";
 
 const VALID_TYPES: BlogType[] = ["BLOG", "NEWS"];
 const VALID_STATUSES: BlogStatus[] = ["DRAFT", "PUBLISHED"];
+
+function buildBlogUrl(blog: { slug: string; type: BlogType }): string {
+  const frontendUrl = process.env.FRONTEND_URL || "https://aramway.com";
+  const basePath = blog.type === "BLOG" ? "/blogs" : "/news-insights";
+  return `${frontendUrl}${basePath}/${blog.slug}`;
+}
+
+/** Best-effort — a subscriber list query or mail failure here must never affect the API response already sent. */
+async function notifySubscribersOfNewBlog(blog: {
+  title: string;
+  excerpt: string;
+  slug: string;
+  type: BlogType;
+  coverImage: string | null;
+}) {
+  try {
+    const emails = await subscribersService.listActiveSubscriberEmails();
+    if (emails.length === 0) return;
+
+    const { subject, html } = newBlogNotificationEmail({
+      title: blog.title,
+      excerpt: blog.excerpt,
+      url: buildBlogUrl(blog),
+      coverImage: blog.coverImage,
+    });
+    await sendMail({ to: emails, subject, html });
+  } catch (err) {
+    console.error("[blogs] failed to notify subscribers of new blog:", err);
+  }
+}
 
 export const createBlog = asyncHandler(async (req: Request, res: Response) => {
   const {
@@ -59,6 +92,10 @@ export const createBlog = asyncHandler(async (req: Request, res: Response) => {
       publishedAt: publishedAt ? new Date(publishedAt) : undefined,
     });
     res.status(201).json(blog);
+
+    if (blog.status === "PUBLISHED") {
+      void notifySubscribersOfNewBlog(blog);
+    }
   } catch (err: any) {
     if (err?.code === "P2002") {
       throw new ApiError(409, "A blog with this slug already exists");
@@ -180,6 +217,11 @@ export const updateBlog = asyncHandler(async (req: Request, res: Response) => {
       publishedAt: publishedAt ? new Date(publishedAt) : undefined,
     });
     res.status(200).json(blog);
+
+    // Only notify on the DRAFT -> PUBLISHED transition, not on every edit of an already-published post.
+    if (existing.status !== "PUBLISHED" && blog.status === "PUBLISHED") {
+      void notifySubscribersOfNewBlog(blog);
+    }
   } catch (err: any) {
     if (err?.code === "P2002") {
       throw new ApiError(409, "A blog with this slug already exists");

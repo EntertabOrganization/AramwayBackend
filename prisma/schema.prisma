@@ -136,3 +136,15 @@ model Consultation {
   createdAt DateTime            @default(now())
   updatedAt DateTime            @updatedAt
 }
+
+/// The admin's recurring weekly consultation availability — one row per
+/// day of week (0 = Sunday .. 6 = Saturday). An empty timeSlots array means
+/// unavailable that day. Read publicly by the Aramway frontend's booking
+/// calendar; only the admin can edit it.
+model AvailabilityRule {
+  id        String   @id @default(uuid())
+  dayOfWeek Int      @unique
+  timeSlots String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
