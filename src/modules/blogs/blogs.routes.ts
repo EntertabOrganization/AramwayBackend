@@ -3,6 +3,59 @@ import { authMiddleware } from "../../middleware/auth.middleware";
 import * as controller from "./blogs.controller";
 
 const router = Router();
+
+/**
+ * @openapi
+ * /blogs/public:
+ *   get:
+ *     tags: [Blogs]
+ *     summary: List published blogs/news (public, unauthenticated)
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *       - in: query
+ *         name: type
+ *         schema: { type: string, enum: [BLOG, NEWS] }
+ *       - in: query
+ *         name: categoryId
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Paginated list of published blogs
+ *       400:
+ *         description: Invalid filter value
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
+router.get("/public", controller.listPublicBlogs);
+
+/**
+ * @openapi
+ * /blogs/public/{slug}:
+ *   get:
+ *     tags: [Blogs]
+ *     summary: Get a published blog by slug (public, unauthenticated)
+ *     parameters:
+ *       - in: path
+ *         name: slug
+ *         required: true
+ *         schema: { type: string }
+ *     responses:
+ *       200:
+ *         description: Blog found
+ *       404:
+ *         description: Blog not found (or not published)
+ *         content:
+ *           application/json:
+ *             schema: { $ref: '#/components/schemas/Error' }
+ */
+router.get("/public/:slug", controller.getPublicBlogBySlug);
+
 router.use(authMiddleware);
 
 /**

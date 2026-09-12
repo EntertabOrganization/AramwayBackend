@@ -61,6 +61,10 @@ export const getBlogById = (id: string) => {
   return prisma.blog.findUnique({ where: { id }, include: { category: true } });
 };
 
+export const getBlogBySlug = (slug: string) => {
+  return prisma.blog.findUnique({ where: { slug }, include: { category: true } });
+};
+
 export const getCategoryById = (id: string) => {
   return prisma.blogCategory.findUnique({ where: { id } });
 };

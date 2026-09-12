@@ -3,6 +3,7 @@ import { BlogType, BlogStatus } from "@prisma/client";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/ApiError";
 import { getPagination, buildPaginatedResult } from "../../utils/pagination";
+import { sanitizeBlogContent } from "../../utils/sanitizeHtml";
 import * as service from "./blogs.service";
 
 const VALID_TYPES: BlogType[] = ["BLOG", "NEWS"];
@@ -48,7 +49,7 @@ export const createBlog = asyncHandler(async (req: Request, res: Response) => {
       title,
       slug,
       excerpt,
-      content,
+      content: sanitizeBlogContent(content),
       coverImage,
       type,
       status,
@@ -64,6 +65,38 @@ export const createBlog = asyncHandler(async (req: Request, res: Response) => {
     }
     throw err;
   }
+});
+
+/**
+ * Public, unauthenticated read endpoints for the Aramway marketing site.
+ * Always scoped to status=PUBLISHED — never exposes drafts.
+ */
+export const listPublicBlogs = asyncHandler(async (req: Request, res: Response) => {
+  const { page, limit, skip } = getPagination(req);
+  const typeQuery = req.query.type as string | undefined;
+  const categoryId = req.query.categoryId as string | undefined;
+
+  if (typeQuery && !VALID_TYPES.includes(typeQuery as BlogType)) {
+    throw new ApiError(400, `type must be one of: ${VALID_TYPES.join(", ")}`);
+  }
+
+  const [data, total] = await service.listBlogs({
+    skip,
+    limit,
+    type: typeQuery as BlogType | undefined,
+    status: "PUBLISHED",
+    categoryId,
+  });
+
+  res.status(200).json(buildPaginatedResult(data, total, page, limit));
+});
+
+export const getPublicBlogBySlug = asyncHandler(async (req: Request, res: Response) => {
+  const blog = await service.getBlogBySlug(req.params.slug);
+  if (!blog || blog.status !== "PUBLISHED") {
+    throw new ApiError(404, "Blog not found");
+  }
+  res.status(200).json(blog);
 });
 
 export const listBlogs = asyncHandler(async (req: Request, res: Response) => {
@@ -137,7 +170,7 @@ export const updateBlog = asyncHandler(async (req: Request, res: Response) => {
       title,
       slug,
       excerpt,
-      content,
+      content: content ? sanitizeBlogContent(content) : content,
       coverImage,
       type,
       status,

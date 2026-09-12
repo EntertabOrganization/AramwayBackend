@@ -125,7 +125,8 @@ Aramway frontend) are unauthenticated; everything else requires a valid
 - `POST /api/subscribers` (public), full CRUD (protected)
 - `blog-categories` full CRUD (protected)
 - `blogs` full CRUD (protected), filterable by `type`, `categoryId`,
-  `status`
+  `status`; `GET /api/blogs/public` and `GET /api/blogs/public/:slug`
+  (public) list/read `PUBLISHED` blogs only, for the Aramway frontend
 - `POST /api/careers` (public, `multipart/form-data` with `resume` and
   `coverLetter` files), list/get/update/delete (protected)
 - `POST /api/contact` (public), list/get/update/delete (protected)
