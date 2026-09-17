@@ -3,8 +3,9 @@
  * layout throughout, since that's what actually renders consistently across
  * email clients (Gmail, Outlook, Apple Mail), unlike a linked stylesheet or
  * modern CSS. Mirrors the Aramway site's palette (app/globals.css: primary
- * #cc9138, ink #0c0903, cream #fbf7f4/#f5ebd6) without depending on any
- * external image asset, so the header renders even with images blocked.
+ * #cc9138, ink #0c0903, cream #fbf7f4/#f5ebd6). The header logo is loaded
+ * from the live site (FRONTEND_URL), with alt text as the fallback for
+ * clients that block remote images by default.
  */
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "https://aramway.com";
@@ -62,8 +63,8 @@ export function renderEmailLayout({ preheader, heading, bodyHtml, ctaLabel, ctaU
       <td align="center" style="padding: 32px 16px;">
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: ${COLORS.white}; border-radius: 16px; overflow: hidden; border: 1px solid ${COLORS.border};">
           <tr>
-            <td align="center" style="background: linear-gradient(135deg, ${COLORS.primaryDark} 0%, ${COLORS.primary} 60%, #e1bf8b 100%); padding: 36px 24px;">
-              <span style="font-family: Georgia, 'Times New Roman', serif; font-size: 26px; font-weight: 700; letter-spacing: 0.06em; color: ${COLORS.white};">ARAMWAY</span>
+            <td align="center" bgcolor="${COLORS.white}" style="background-color: ${COLORS.white}; padding: 32px 24px; border-bottom: 1px solid ${COLORS.border};">
+              <img src="${FRONTEND_URL}/images/logo-footer.png" width="160" alt="Aramway Group" style="display: block; width: 160px; max-width: 100%; height: auto; border: 0;" />
             </td>
           </tr>
           <tr>
