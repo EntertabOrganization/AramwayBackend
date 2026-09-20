@@ -48,7 +48,7 @@ export interface SendMailInput {
 }
 
 export async function sendMail({ to, subject, html }: SendMailInput): Promise<void> {
-  const from = process.env.EMAIL_FROM || "Aramway <no-reply@aramway.com>";
+  const from = process.env.EMAIL_FROM || "ARAMWAY GROUP <no-reply@aramway.com>";
   const client = getTransporter();
 
   if (!client) {

@@ -7,7 +7,7 @@ export function newBlogNotificationEmail(params: {
   url: string;
   coverImage?: string | null;
 }): { subject: string; html: string } {
-  const subject = `New on Aramway: ${params.title}`;
+  const subject = `New on ARAMWAY GROUP: ${params.title}`;
   const title = escapeHtml(params.title);
   const excerpt = escapeHtml(params.excerpt);
 
@@ -22,8 +22,8 @@ export function newBlogNotificationEmail(params: {
     : "";
 
   const html = renderEmailLayout({
-    preheader: `${params.title} — new on the Aramway blog.`,
-    heading: "There's a new post on Aramway 📰",
+    preheader: `${params.title} — new on the ARAMWAY GROUP blog.`,
+    heading: "There's a new post on ARAMWAY GROUP 📰",
     bodyHtml: `
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
         ${coverImageHtml}

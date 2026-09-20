@@ -8,6 +8,7 @@ import { swaggerSpec, swaggerUiOptions, swaggerUiCdnHost } from "./swagger/swagg
 import { errorHandler } from "./middleware/errorHandler";
 
 import authRoutes from "./modules/auth/auth.routes";
+import adminRoutes from "./modules/admins/admins.routes";
 import subscriberRoutes from "./modules/subscribers/subscribers.routes";
 import blogCategoryRoutes from "./modules/blog-categories/blog-categories.routes";
 import blogRoutes from "./modules/blogs/blogs.routes";
@@ -48,6 +49,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, swaggerUiOptions));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/admins", adminRoutes);
 app.use("/api/subscribers", subscriberRoutes);
 app.use("/api/blog-categories", blogCategoryRoutes);
 app.use("/api/blogs", blogRoutes);

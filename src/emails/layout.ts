@@ -64,7 +64,7 @@ export function renderEmailLayout({ preheader, heading, bodyHtml, ctaLabel, ctaU
         <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: ${COLORS.white}; border-radius: 16px; overflow: hidden; border: 1px solid ${COLORS.border};">
           <tr>
             <td align="center" bgcolor="${COLORS.white}" style="background-color: ${COLORS.white}; padding: 32px 24px; border-bottom: 1px solid ${COLORS.border};">
-              <img src="${FRONTEND_URL}/images/logo-footer.png" width="160" alt="Aramway Group" style="display: block; width: 160px; max-width: 100%; height: auto; border: 0;" />
+              <img src="${FRONTEND_URL}/images/logo-footer.png" width="160" alt="ARAMWAY GROUP" style="display: block; width: 160px; max-width: 100%; height: auto; border: 0;" />
             </td>
           </tr>
           <tr>
@@ -84,7 +84,7 @@ export function renderEmailLayout({ preheader, heading, bodyHtml, ctaLabel, ctaU
             <td style="padding: 28px 36px 36px;">
               <hr style="border: none; border-top: 1px solid ${COLORS.border}; margin: 0 0 20px;" />
               <p style="margin: 0; font-size: 13px; line-height: 1.6; color: ${COLORS.muted};">
-                Aramway Group &middot; Bridging U.S. &amp; MENA Markets<br />
+                ARAMWAY GROUP &middot; Bridging U.S. &amp; MENA Markets<br />
                 <a href="${FRONTEND_URL}" style="color: ${COLORS.primary}; text-decoration: none;">${FRONTEND_URL.replace(/^https?:\/\//, "")}</a>
               </p>
             </td>

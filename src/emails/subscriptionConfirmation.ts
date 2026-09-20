@@ -2,15 +2,15 @@ import { renderEmailLayout } from "./layout";
 
 export function subscriptionConfirmationEmail(params: { name?: string }): { subject: string; html: string } {
   const greeting = params.name ? `Hi ${params.name},` : "Hi there,";
-  const subject = "You're subscribed to Aramway";
+  const subject = "You're subscribed to ARAMWAY GROUP";
 
   const html = renderEmailLayout({
-    preheader: "You're now subscribed to Aramway's newsletter — market insights, expansion strategies, and program updates.",
-    heading: "You're subscribed to Aramway! 🎉",
+    preheader: "You're now subscribed to ARAMWAY GROUP's newsletter — market insights, expansion strategies, and program updates.",
+    heading: "You're subscribed to ARAMWAY GROUP! 🎉",
     bodyHtml: `
       <p style="margin: 0 0 16px;">${greeting}</p>
       <p style="margin: 0 0 16px;">
-        Thank you for subscribing to Aramway. You'll now receive market insights, expansion
+        Thank you for subscribing to ARAMWAY GROUP. You'll now receive market insights, expansion
         strategies, and program updates straight to your inbox — including a note whenever we
         publish a new blog post.
       </p>
