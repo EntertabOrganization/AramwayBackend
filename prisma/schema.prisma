@@ -126,7 +126,6 @@ model Consultation {
   company   String?
   email     String
   phone     String
-  country   String
   service   String?
   notes     String?
   date      DateTime

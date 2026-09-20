@@ -37,17 +37,16 @@ export const createConsultation = asyncHandler(
       company,
       email,
       phone,
-      country,
       service: svc,
       notes,
       date,
       time,
     } = req.body ?? {};
 
-    if (!name || !email || !phone || !country || !date || !time) {
+    if (!name || !email || !phone || !date || !time) {
       throw new ApiError(
         400,
-        "name, email, phone, country, date, and time are required"
+        "name, email, phone, date, and time are required"
       );
     }
 
@@ -78,7 +77,6 @@ export const createConsultation = asyncHandler(
       company,
       email,
       phone,
-      country,
       service: svc,
       notes,
       date: parsedDate,
@@ -104,7 +102,6 @@ export const createConsultation = asyncHandler(
         company: consultation.company,
         email: consultation.email,
         phone: consultation.phone,
-        country: consultation.country,
         service: consultation.service,
         notes: consultation.notes,
         date: consultation.date,

@@ -16,13 +16,12 @@ const router = Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, phone, country, date, time]
+ *             required: [name, email, phone, date, time]
  *             properties:
  *               name: { type: string }
  *               company: { type: string }
  *               email: { type: string, format: email }
  *               phone: { type: string }
- *               country: { type: string }
  *               service: { type: string }
  *               notes: { type: string }
  *               date: { type: string, format: date }

@@ -17,7 +17,6 @@ export function consultationStaffNotificationEmail(params: {
   company?: string | null;
   email: string;
   phone: string;
-  country: string;
   service?: string | null;
   notes?: string | null;
   date: Date;
@@ -32,7 +31,6 @@ export function consultationStaffNotificationEmail(params: {
     ...(params.company ? ([["Company", escapeHtml(params.company)]] as [string, string][]) : []),
     ["Email", escapeHtml(params.email)],
     ["Phone", escapeHtml(params.phone)],
-    ["Country", escapeHtml(params.country)],
     ...(params.service ? ([["Service", escapeHtml(params.service)]] as [string, string][]) : []),
     ["Date", formattedDate],
     ["Time", params.time],

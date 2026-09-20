@@ -20,7 +20,6 @@ const CONSULTATION = {
   company: null,
   email: "alice@example.com",
   phone: "5551234",
-  country: "Wonderland",
   service: null,
   notes: null,
   date: new Date("2026-02-01"),
@@ -52,7 +51,6 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        country: CONSULTATION.country,
         date: "2026-02-01",
         time: CONSULTATION.time,
       });
@@ -86,7 +84,6 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        country: CONSULTATION.country,
         date: "2026-02-01",
         time: CONSULTATION.time,
       });
@@ -117,7 +114,6 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        country: CONSULTATION.country,
         date: "2026-02-01",
         time: CONSULTATION.time,
       });
@@ -146,7 +142,6 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        country: CONSULTATION.country,
         date: "2026-02-01",
         time: CONSULTATION.time,
       });
@@ -170,7 +165,6 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        country: CONSULTATION.country,
         date: "2026-02-01",
         time: CONSULTATION.time,
       });
@@ -193,7 +187,6 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        country: CONSULTATION.country,
         date: "2026-02-01",
         time: CONSULTATION.time,
       });
