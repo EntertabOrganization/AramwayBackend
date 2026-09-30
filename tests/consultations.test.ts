@@ -22,7 +22,7 @@ const CONSULTATION = {
   phone: "5551234",
   service: null,
   notes: null,
-  date: new Date("2026-02-01"),
+  date: new Date("2099-02-01"),
   time: "10:00",
   meetLink: "https://meet.google.com/new",
   status: "PENDING" as const,
@@ -36,7 +36,7 @@ describe("Consultations module", () => {
       const originalNotifyEmail = process.env.CONSULTATION_NOTIFY_EMAIL;
       process.env.CONSULTATION_NOTIFY_EMAIL = "faris@entertab.com";
 
-      // 2026-02-01 is a Sunday (dayOfWeek 0).
+      // 2099-02-01 is a Sunday (dayOfWeek 0).
       prismaMock.availabilityRule.findUnique.mockResolvedValue({
         id: "rule-0",
         dayOfWeek: 0,
@@ -51,7 +51,7 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        date: "2026-02-01",
+        date: "2099-02-01",
         time: CONSULTATION.time,
       });
 
@@ -84,7 +84,7 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        date: "2026-02-01",
+        date: "2099-02-01",
         time: CONSULTATION.time,
       });
 
@@ -114,7 +114,7 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        date: "2026-02-01",
+        date: "2099-02-01",
         time: CONSULTATION.time,
       });
 
@@ -142,7 +142,7 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        date: "2026-02-01",
+        date: "2099-02-01",
         time: CONSULTATION.time,
       });
 
@@ -165,8 +165,30 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        date: "2026-02-01",
+        date: "2099-02-01",
         time: CONSULTATION.time,
+      });
+
+      expect(res.status).toBe(409);
+      expect(prismaMock.consultation.create).not.toHaveBeenCalled();
+    });
+
+    it("returns 409 when the slot has already passed in Eastern Time", async () => {
+      prismaMock.availabilityRule.findUnique.mockResolvedValue({
+        id: "rule-0",
+        dayOfWeek: 0,
+        timeSlots: ["09:00 AM"],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as any);
+      prismaMock.consultation.findMany.mockResolvedValue([]);
+
+      const res = await request(app).post("/api/consultations").send({
+        name: CONSULTATION.name,
+        email: CONSULTATION.email,
+        phone: CONSULTATION.phone,
+        date: "2026-02-01",
+        time: "09:00 AM",
       });
 
       expect(res.status).toBe(409);
@@ -187,7 +209,7 @@ describe("Consultations module", () => {
         name: CONSULTATION.name,
         email: CONSULTATION.email,
         phone: CONSULTATION.phone,
-        date: "2026-02-01",
+        date: "2099-02-01",
         time: CONSULTATION.time,
       });
 
@@ -205,7 +227,7 @@ describe("Consultations module", () => {
     it("returns booked times for a date without requiring a cookie", async () => {
       prismaMock.consultation.findMany.mockResolvedValue([CONSULTATION] as any);
 
-      const res = await request(app).get("/api/consultations/booked?date=2026-02-01");
+      const res = await request(app).get("/api/consultations/booked?date=2099-02-01");
 
       expect(res.status).toBe(200);
       expect(res.body.data).toEqual([CONSULTATION.time]);

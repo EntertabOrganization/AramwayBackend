@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ConsultationStatus } from "@prisma/client";
 import { asyncHandler } from "../../utils/asyncHandler";
 import { ApiError } from "../../utils/ApiError";
+import { easternSlotToUtc } from "../../utils/easternTime";
 import { getPagination, buildPaginatedResult } from "../../utils/pagination";
 import { sendMail } from "../../lib/mailer";
 import { consultationConfirmationEmail } from "../../emails/consultationConfirmation";
@@ -16,19 +17,6 @@ const VALID_STATUSES: ConsultationStatus[] = [
   "CANCELLED",
   "COMPLETED",
 ];
-
-/** "09:00 AM" + a UTC midnight date -> the actual UTC start time of the slot. */
-function combineDateAndTimeLabel(date: Date, timeLabel: string): Date {
-  const match = timeLabel.match(/^(\d{1,2}):(\d{2})\s?(AM|PM)$/i);
-  if (!match) return date;
-
-  let hours = parseInt(match[1], 10) % 12;
-  if (match[3].toUpperCase() === "PM") hours += 12;
-
-  const combined = new Date(date);
-  combined.setUTCHours(hours, parseInt(match[2], 10), 0, 0);
-  return combined;
-}
 
 export const createConsultation = asyncHandler(
   async (req: Request, res: Response) => {
@@ -61,6 +49,11 @@ export const createConsultation = asyncHandler(
       throw new ApiError(409, "That day/time is not available for consultations");
     }
 
+    const slotStart = easternSlotToUtc(parsedDate, time);
+    if (slotStart && slotStart.getTime() <= Date.now()) {
+      throw new ApiError(409, "That time slot has already passed — please pick a future time");
+    }
+
     const bookedTimes = await service.listBookedTimesForDate(parsedDate);
     if (bookedTimes.includes(time)) {
       throw new ApiError(409, "That time slot has just been booked — please pick another");
@@ -69,7 +62,7 @@ export const createConsultation = asyncHandler(
     const meetLink = await createMeetLink({
       summary: `Aramway consultation with ${name}`,
       description: svc ? `Service: ${svc}` : undefined,
-      startTime: combineDateAndTimeLabel(parsedDate, time),
+      startTime: slotStart ?? parsedDate,
     });
 
     const consultation = await service.createConsultation({
